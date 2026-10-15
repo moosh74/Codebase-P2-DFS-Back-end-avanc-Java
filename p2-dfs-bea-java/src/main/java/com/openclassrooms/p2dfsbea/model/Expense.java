@@ -8,6 +8,7 @@ import java.util.Objects;
 
 public class Expense {
     public static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+    public static final DateTimeFormatter FORMATTER_MONTH = DateTimeFormatter.ofPattern("MMMM yyyy");
 
     private LocalDate date;
     private String category;
@@ -26,6 +27,10 @@ public class Expense {
 
     public LocalDate getDate() {
         return date;
+    }
+
+    public String getMonthFullName() {
+        return date.format(FORMATTER_MONTH);
     }
 
     public void setDate(LocalDate date) {
