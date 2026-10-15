@@ -54,6 +54,10 @@ public class ConsoleMenu {
         List<Expense> list = service.loadAllExpenses();
         System.out.println("\nHistory (most recent first):");
         list.stream().sorted((a, b) -> b.getDate().compareTo(a.getDate())).forEach(e -> System.out.println(e.toCsvLine()));
+       
+        showTotal(list.stream()
+            .map(Expense::getAmount)
+            .reduce(BigDecimal.ZERO, BigDecimal::add));
     }
 
     private void showStats(boolean monthly) {
@@ -71,9 +75,11 @@ public class ConsoleMenu {
                 Collectors.reducing(BigDecimal.ZERO, Expense::getAmount, BigDecimal::add)));
 
         totals.forEach((label, amount) -> System.out.println(label + ": " + amount.setScale(2, RoundingMode.HALF_UP)));
-
-        BigDecimal total = totals.values().stream().reduce(BigDecimal.ZERO, BigDecimal::add);
        
+        showTotal(totals.values().stream().reduce(BigDecimal.ZERO, BigDecimal::add));
+    }
+
+    private void showTotal(BigDecimal total) {
         System.out.println("--------------------------");
         System.out.println("TOTAL : " + total.setScale(2, RoundingMode.HALF_UP));
         System.out.println("--------------------------");
