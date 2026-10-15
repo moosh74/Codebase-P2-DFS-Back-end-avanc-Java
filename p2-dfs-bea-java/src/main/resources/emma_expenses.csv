@@ -1,4 +1,60 @@
 date,category,description,amount
-01/01/2024,housing,Rent,500.00
-05/01/2024,food,Groceries,45.30
-10/01/2024,transport,Bus ticket,2.50
+01/06/2025,housing,Rent,500.00
+05/06/2025,food,Weekly market groceries,48.60
+12/06/2025,transport,Monthly bus pass,32.00
+18/06/2025,utilities,Electricity bill,46.80
+24/06/2025,health,Pharmacy prescription,16.45
+01/07/2025,housing,Rent,500.00
+04/07/2025,food,Bakery and groceries,52.30
+11/07/2025,transport,Train to visit family,18.50
+19/07/2025,food,Lunch at cafe,27.40
+26/07/2025,entertainment,Cinema tickets,21.00
+01/08/2025,housing,Rent,500.00
+06/08/2025,food,Fresh produce and dairy,46.20
+13/08/2025,transport,Bicycle repair,24.90
+20/08/2025,food,Dinner at restaurant,32.00
+27/08/2025,shopping,Household cleaning supplies,18.90
+01/09/2025,housing,Rent,500.00
+05/09/2025,food,Supermarket weekly shop,54.10
+12/09/2025,transport,Monthly bus pass,32.00
+18/09/2025,utilities,Internet subscription,29.99
+25/09/2025,personal_care,Haircut,28.00
+01/10/2025,housing,Rent,500.00
+07/10/2025,food,Groceries and pantry staples,49.80
+14/10/2025,transport,Taxi ride home,14.50
+21/10/2025,education,Used books for class,26.90
+28/10/2025,food,Takeaway dinner,39.40
+01/11/2025,housing,Rent,500.00
+06/11/2025,food,Market vegetables and fruit,57.25
+13/11/2025,transport,Monthly bus pass,32.00
+19/11/2025,health,Dentist appointment,48.60
+26/11/2025,shopping,Winter gloves and scarf,34.30
+01/12/2025,housing,Rent,500.00
+05/12/2025,food,Holiday groceries,62.40
+12/12/2025,transport,Train tickets,24.50
+20/12/2025,entertainment,Concert ticket,45.70
+27/12/2025,gifts,Birthday present,31.15
+01/01/2026,housing,Rent,500.00
+06/01/2026,food,Supermarket weekly shop,47.90
+13/01/2026,transport,Monthly bus pass,32.00
+20/01/2026,subscriptions,Music streaming subscription,10.99
+27/01/2026,utilities,Water bill,28.25
+01/02/2026,housing,Rent,500.00
+05/02/2026,food,Groceries and fresh bread,53.70
+12/02/2026,transport,Car share trip,22.50
+19/02/2026,food,Valentines dinner,39.40
+26/02/2026,insurance,Home insurance,22.80
+01/03/2026,housing,Rent,500.00
+06/03/2026,food,Weekly market groceries,50.35
+13/03/2026,transport,Monthly bus pass,32.00
+20/03/2026,health,Cold medicine and vitamins,22.60
+27/03/2026,entertainment,Museum entry tickets,17.95
+01/04/2026,housing,Rent,500.00
+07/04/2026,food,Supermarket weekly shop,55.20
+14/04/2026,transport,Train to the city,16.50
+21/04/2026,shopping,New kitchen utensils,31.80
+28/04/2026,utilities,Mobile phone bill,19.70
+01/05/2026,housing,Rent,500.00
+05/05/2026,food,Groceries and picnic supplies,49.25
+12/05/2026,transport,Monthly bus pass,32.00
+23/05/2026,food,Restaurant lunch,24.70
