@@ -31,16 +31,12 @@ public class ExpenseService {
     }
 
     public BigDecimal calculateTotalExpenses() {
-        if(expenses.isEmpty()) loadAllExpenses();
-
         return expenses.stream()
             .map(Expense::getAmount)
             .reduce(BigDecimal.ZERO, BigDecimal::add);
     }
 
     public TreeMap<String, BigDecimal> groupByCategory() {
-        if(expenses.isEmpty()) loadAllExpenses();
-
         return expenses.stream()
             .collect(Collectors.groupingBy(
                 Expense::getCategory,
@@ -49,8 +45,6 @@ public class ExpenseService {
     }
 
     public TreeMap<String, BigDecimal> groupByMonth() {
-        if(expenses.isEmpty()) loadAllExpenses();
-
         Comparator<String> sortOrder = Comparator.comparing(
             (String label) -> YearMonth.parse(label, Expense.FORMATTER_MONTH));
 
@@ -68,9 +62,8 @@ public class ExpenseService {
             return BigDecimal.ZERO;
         }
 
-        BigDecimal totalExpenses = expensesByMonth.values().stream()
-            .reduce(BigDecimal.ZERO, BigDecimal::add);
-            
+        BigDecimal totalExpenses = calculateTotalExpenses();
+
         return totalExpenses.divide(BigDecimal.valueOf(expensesByMonth.size()), 2, RoundingMode.HALF_UP);
     }
 

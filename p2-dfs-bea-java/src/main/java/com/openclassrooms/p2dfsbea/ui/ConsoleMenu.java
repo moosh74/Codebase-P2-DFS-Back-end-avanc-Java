@@ -55,6 +55,8 @@ public class ConsoleMenu {
     }
 
     private void showStatistics() {
+        expenseService.loadAllExpenses();
+
         BigDecimal total = expenseService.calculateTotalExpenses();
         TreeMap<String, BigDecimal> listPerCategory = expenseService.groupByCategory();
         TreeMap<String, BigDecimal> listPerMonth = expenseService.groupByMonth();
