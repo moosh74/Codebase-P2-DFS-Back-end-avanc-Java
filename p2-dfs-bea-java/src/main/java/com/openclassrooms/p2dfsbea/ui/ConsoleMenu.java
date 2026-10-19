@@ -28,10 +28,9 @@ public class ConsoleMenu {
             String choice = scanner.nextLine().trim();
             switch (choice) {
                 case "1" -> showHistory();
-                case "2" -> showStats(false);
-                case "3" -> showStats(true);
-                case "4" -> addExpense();
-                case "5" -> {
+                case "2" -> showStatistics();
+                case "3" -> addExpense();
+                case "4" -> {
                     System.out.println("Goodbye");
                     running = false;
                 }
@@ -43,10 +42,9 @@ public class ConsoleMenu {
     private void printMenu() {
         System.out.println("\n--- Personal Finance Tracker ---");
         System.out.println("1) Show history");
-        System.out.println("2) Show stats per category");
-        System.out.println("3) Show stats per month");
-        System.out.println("4) Add expense");
-        System.out.println("5) Quit");
+        System.out.println("2) Show statistics");
+        System.out.println("3) Add expense");
+        System.out.println("4) Quit");
         System.out.print("Choose an option: ");
     }
 
@@ -54,35 +52,50 @@ public class ConsoleMenu {
         List<Expense> list = service.loadAllExpenses();
         System.out.println("\nHistory (most recent first):");
         list.stream().sorted((a, b) -> b.getDate().compareTo(a.getDate())).forEach(e -> System.out.println(e.toCsvLine()));
-       
-        showTotal(list.stream()
-            .map(Expense::getAmount)
-            .reduce(BigDecimal.ZERO, BigDecimal::add));
     }
 
-    private void showStats(boolean monthly) {
+    private void showStatistics() {
         List<Expense> list = service.loadAllExpenses();
-        System.out.println("\nStatistics (" + (monthly ? "per month" : "per category") + "):");
+         
+        BigDecimal total = list.stream().map(Expense::getAmount).reduce(BigDecimal.ZERO, BigDecimal::add);
+        TreeMap<String, BigDecimal> listPerCategory = groupByCategory(list);
+        TreeMap<String, BigDecimal> listPerMonth = groupByMonth(list);
 
-        Comparator<String> sortOrder = monthly
-            ? Comparator.comparing(label -> YearMonth.parse(label, Expense.FORMATTER_MONTH))
-            : Comparator.naturalOrder();
-            
-        TreeMap<String, BigDecimal> totals = list.stream()
+        System.out.println("--------------------------");
+        System.out.println("Total dépenses : " + total.setScale(2, RoundingMode.HALF_UP));
+        System.out.println("Nombre de mois : " + listPerMonth.size());
+        System.out.println("--------------------------");
+
+        System.out.println("\n--------------------------");
+        System.out.println("Par catégorie");
+        System.out.println("--------------------------");
+      
+        listPerCategory.forEach((label, amount) -> System.out.println(label + ": " + amount.setScale(2, RoundingMode.HALF_UP)));
+    
+        System.out.println("\n--------------------------");
+        System.out.println("Par mois");
+        System.out.println("--------------------------");
+  
+        listPerMonth.forEach((label, amount) -> System.out.println(label + ": " + amount.setScale(2, RoundingMode.HALF_UP)));
+   }
+
+    private TreeMap<String, BigDecimal> groupByCategory(List<Expense> list) {
+        return list.stream()
             .collect(Collectors.groupingBy(
-                expense -> monthly ? expense.getMonthFullName() : expense.getCategory(),
-                () -> new TreeMap<>(sortOrder),
+                Expense::getCategory,
+                TreeMap::new,
                 Collectors.reducing(BigDecimal.ZERO, Expense::getAmount, BigDecimal::add)));
-
-        totals.forEach((label, amount) -> System.out.println(label + ": " + amount.setScale(2, RoundingMode.HALF_UP)));
-       
-        showTotal(totals.values().stream().reduce(BigDecimal.ZERO, BigDecimal::add));
     }
 
-    private void showTotal(BigDecimal total) {
-        System.out.println("--------------------------");
-        System.out.println("TOTAL : " + total.setScale(2, RoundingMode.HALF_UP));
-        System.out.println("--------------------------");
+    private TreeMap<String, BigDecimal> groupByMonth(List<Expense> list) {
+        Comparator<String> sortOrder = Comparator.comparing(
+            (String label) -> YearMonth.parse(label, Expense.FORMATTER_MONTH));
+
+        return list.stream()
+            .collect(Collectors.groupingBy(
+                Expense::getMonthFullName,
+                () -> new TreeMap<String, BigDecimal>(sortOrder),
+                Collectors.reducing(BigDecimal.ZERO, Expense::getAmount, BigDecimal::add)));
     }
 
     private void addExpense() {
