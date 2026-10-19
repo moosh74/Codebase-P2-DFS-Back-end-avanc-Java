@@ -4,6 +4,7 @@ import com.openclassrooms.p2dfsbea.model.Expense;
 import com.openclassrooms.p2dfsbea.repository.ExpenseRepository;
 import com.openclassrooms.p2dfsbea.service.CarPurchaseSimulatorService;
 import com.openclassrooms.p2dfsbea.service.ExpenseService;
+import com.openclassrooms.p2dfsbea.service.MortgageLoanSimulatorService;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -19,6 +20,7 @@ public class ConsoleMenu {
     private final ExpenseRepository repository = new ExpenseRepository();
     private final ExpenseService expenseService = new ExpenseService(repository);
     private final CarPurchaseSimulatorService cpsService = new CarPurchaseSimulatorService();
+    private final MortgageLoanSimulatorService mortgageSimulatorService = new MortgageLoanSimulatorService();
 
     public void start() {
         boolean running = true;
@@ -29,8 +31,9 @@ public class ConsoleMenu {
                 case "1" -> showHistory();
                 case "2" -> showStatistics();
                 case "3" -> carPurchaseSimulator();
-                case "4" -> addExpense();
-                case "5" -> {
+                case "4" -> mortgageLoanSimulator();
+                case "5" -> addExpense();
+                case "6" -> {
                     System.out.println("Goodbye");
                     running = false;
                 }
@@ -44,8 +47,9 @@ public class ConsoleMenu {
         System.out.println("1) Show history");
         System.out.println("2) Show statistics");
         System.out.println("3) Simulation « achat d'une voiture »");
-        System.out.println("4) Add expense");
-        System.out.println("5) Quit");
+        System.out.println("4) Simulation « prêt immobilier »");
+        System.out.println("5) Add expense");
+        System.out.println("6) Quit");
         System.out.print("Choose an option: ");
     }
 
@@ -113,6 +117,26 @@ public class ConsoleMenu {
         } catch (ArithmeticException ex) {
             error("Le montant saisi dépasse la capacité de calcul de la simulation.");
         }
+    }
+
+    private void mortgageLoanSimulator() {
+        expenseService.loadAllExpenses();
+
+        BigDecimal availableMonthlySavings = expenseService.calculateAvailableMonthlySavings();
+        BigDecimal averageHousingExpenses = expenseService.calculateAverageMonthlyExpensesForCategory("housing");
+        BigDecimal maximumMonthlyPayment = mortgageSimulatorService.calculateMaximumMonthlyPayment(ExpenseService.MONTHLY_INCOME, averageHousingExpenses, availableMonthlySavings);
+
+        if (maximumMonthlyPayment.signum() <= 0) {
+            error("Simulation impossible : aucune capacité de remboursement mensuelle n'est disponible sous le plafond de 35 %.");
+            return;
+        }
+
+        info("\n--------------------------");
+        info("Revenu mensuel : " + ExpenseService.MONTHLY_INCOME.setScale(2, RoundingMode.HALF_UP));
+        info("Dépenses logement mensuelles moyennes : " + averageHousingExpenses.setScale(2, RoundingMode.HALF_UP));
+        info("Épargne mensuelle disponible : " + availableMonthlySavings.setScale(2, RoundingMode.HALF_UP));
+        info("Mensualité maximale pour le prêt : " + maximumMonthlyPayment.setScale(2, RoundingMode.HALF_UP));
+        info("--------------------------");
     }
 
     private void addExpense() {
