@@ -47,7 +47,10 @@ public class ConsoleMenu {
 
     private void showHistory() {
         List<Expense> list = expenseService.loadAllExpenses();
+   
         System.out.println("\nHistory (most recent first):");
+        System.out.println("--------------------------");
+       
         list.stream().sorted((a, b) -> b.getDate().compareTo(a.getDate())).forEach(e -> System.out.println(e.toCsvLine()));
     }
 
@@ -56,19 +59,17 @@ public class ConsoleMenu {
         TreeMap<String, BigDecimal> listPerCategory = expenseService.groupByCategory();
         TreeMap<String, BigDecimal> listPerMonth = expenseService.groupByMonth();
 
-        System.out.println("--------------------------");
+        System.out.println("\n--------------------------");
         System.out.println("Total dépenses : " + total.setScale(2, RoundingMode.HALF_UP));
         System.out.println("Nombre de mois : " + listPerMonth.size());
         System.out.println("--------------------------");
 
-        System.out.println("\n--------------------------");
-        System.out.println("Par catégorie");
+        System.out.println("\nPar catégorie");
         System.out.println("--------------------------");
       
         listPerCategory.forEach((label, amount) -> System.out.println(label + ": " + amount.setScale(2, RoundingMode.HALF_UP)));
     
-        System.out.println("\n--------------------------");
-        System.out.println("Par mois");
+        System.out.println("\nPar mois");
         System.out.println("--------------------------");
   
         listPerMonth.forEach((label, amount) -> System.out.println(label + ": " + amount.setScale(2, RoundingMode.HALF_UP)));
