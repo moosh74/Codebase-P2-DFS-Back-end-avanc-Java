@@ -8,18 +8,15 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
-import java.time.YearMonth;
 import java.time.format.DateTimeParseException;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Scanner;
 import java.util.TreeMap;
-import java.util.stream.Collectors;
 
 public class ConsoleMenu {
     private final Scanner scanner = new Scanner(System.in);
     private final ExpenseRepository repository = new ExpenseRepository();
-    private final ExpenseService service = new ExpenseService(repository);
+    private final ExpenseService expenseService = new ExpenseService(repository);
 
     public void start() {
         boolean running = true;
@@ -49,17 +46,15 @@ public class ConsoleMenu {
     }
 
     private void showHistory() {
-        List<Expense> list = service.loadAllExpenses();
+        List<Expense> list = expenseService.loadAllExpenses();
         System.out.println("\nHistory (most recent first):");
         list.stream().sorted((a, b) -> b.getDate().compareTo(a.getDate())).forEach(e -> System.out.println(e.toCsvLine()));
     }
 
     private void showStatistics() {
-        List<Expense> list = service.loadAllExpenses();
-         
-        BigDecimal total = list.stream().map(Expense::getAmount).reduce(BigDecimal.ZERO, BigDecimal::add);
-        TreeMap<String, BigDecimal> listPerCategory = groupByCategory(list);
-        TreeMap<String, BigDecimal> listPerMonth = groupByMonth(list);
+        BigDecimal total = expenseService.calculateTotalExpenses();
+        TreeMap<String, BigDecimal> listPerCategory = expenseService.groupByCategory();
+        TreeMap<String, BigDecimal> listPerMonth = expenseService.groupByMonth();
 
         System.out.println("--------------------------");
         System.out.println("Total dépenses : " + total.setScale(2, RoundingMode.HALF_UP));
@@ -79,25 +74,6 @@ public class ConsoleMenu {
         listPerMonth.forEach((label, amount) -> System.out.println(label + ": " + amount.setScale(2, RoundingMode.HALF_UP)));
    }
 
-    private TreeMap<String, BigDecimal> groupByCategory(List<Expense> list) {
-        return list.stream()
-            .collect(Collectors.groupingBy(
-                Expense::getCategory,
-                TreeMap::new,
-                Collectors.reducing(BigDecimal.ZERO, Expense::getAmount, BigDecimal::add)));
-    }
-
-    private TreeMap<String, BigDecimal> groupByMonth(List<Expense> list) {
-        Comparator<String> sortOrder = Comparator.comparing(
-            (String label) -> YearMonth.parse(label, Expense.FORMATTER_MONTH));
-
-        return list.stream()
-            .collect(Collectors.groupingBy(
-                Expense::getMonthFullName,
-                () -> new TreeMap<String, BigDecimal>(sortOrder),
-                Collectors.reducing(BigDecimal.ZERO, Expense::getAmount, BigDecimal::add)));
-    }
-
     private void addExpense() {
         try {
             System.out.print("Date (dd/MM/yyyy): ");
@@ -115,7 +91,7 @@ public class ConsoleMenu {
             BigDecimal amount = new BigDecimal(amountS);
 
             Expense e = new Expense(date, category, description, amount);
-            service.addExpense(e);
+            expenseService.addExpense(e);
             System.out.println("Expense added.");
         } catch (DateTimeParseException dtpe) {
             System.out.println("Invalid date format. Use dd/MM/yyyy.");
