@@ -15,13 +15,15 @@ public class ExpenseService {
     public static final BigDecimal MONTHLY_INCOME = new BigDecimal("2000.00");
 
     private final ExpenseRepository repository;
+    private List<Expense> expenses = new ArrayList<>();
 
     public ExpenseService(ExpenseRepository repository) {
         this.repository = repository;
     }
 
     public List<Expense> loadAllExpenses() {
-        return repository.readAll();
+        expenses = repository.readAll();
+        return expenses;
     }
 
     public void addExpense(Expense expense) throws IOException {
@@ -29,13 +31,17 @@ public class ExpenseService {
     }
 
     public BigDecimal calculateTotalExpenses() {
-        return loadAllExpenses().stream()
+        if(expenses.isEmpty()) loadAllExpenses();
+
+        return expenses.stream()
             .map(Expense::getAmount)
             .reduce(BigDecimal.ZERO, BigDecimal::add);
     }
 
     public TreeMap<String, BigDecimal> groupByCategory() {
-        return loadAllExpenses().stream()
+        if(expenses.isEmpty()) loadAllExpenses();
+
+        return expenses.stream()
             .collect(Collectors.groupingBy(
                 Expense::getCategory,
                 TreeMap::new,
@@ -43,10 +49,12 @@ public class ExpenseService {
     }
 
     public TreeMap<String, BigDecimal> groupByMonth() {
+        if(expenses.isEmpty()) loadAllExpenses();
+
         Comparator<String> sortOrder = Comparator.comparing(
             (String label) -> YearMonth.parse(label, Expense.FORMATTER_MONTH));
 
-        return loadAllExpenses().stream()
+        return expenses.stream()
             .collect(Collectors.groupingBy(
                 Expense::getMonthFullName,
                 () -> new TreeMap<String, BigDecimal>(sortOrder),
@@ -54,10 +62,7 @@ public class ExpenseService {
     }
 
     public BigDecimal calculateAverageMonthlyExpenses() {
-        Map<YearMonth, BigDecimal> expensesByMonth = loadAllExpenses().stream()
-            .collect(Collectors.groupingBy(
-                expense -> YearMonth.from(expense.getDate()),
-                Collectors.reducing(BigDecimal.ZERO, Expense::getAmount, BigDecimal::add)));
+        TreeMap<String, BigDecimal> expensesByMonth = groupByMonth();
 
         if (expensesByMonth.isEmpty()) {
             return BigDecimal.ZERO;
