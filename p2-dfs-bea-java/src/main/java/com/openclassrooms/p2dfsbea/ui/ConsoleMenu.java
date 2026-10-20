@@ -122,9 +122,8 @@ public class ConsoleMenu {
     private void mortgageLoanSimulator() {
         expenseService.loadAllExpenses();
 
-        BigDecimal availableMonthlySavings = expenseService.calculateAvailableMonthlySavings();
-        BigDecimal averageHousingExpenses = expenseService.calculateAverageMonthlyExpensesForCategory("housing");
-        BigDecimal maximumMonthlyPayment = mortgageSimulatorService.calculateMaximumMonthlyPayment(ExpenseService.MONTHLY_INCOME, averageHousingExpenses, availableMonthlySavings);
+        BigDecimal availableMonthlySavings = expenseService.calculateAvailableMonthlySavings("housing");
+        BigDecimal maximumMonthlyPayment = mortgageSimulatorService.calculateMaximumMonthlyPayment(ExpenseService.MONTHLY_INCOME, availableMonthlySavings);
 
         if (maximumMonthlyPayment.signum() <= 0) {
             error("Simulation impossible : aucune capacité de remboursement mensuelle n'est disponible sous le plafond de 35 %.");
@@ -133,7 +132,6 @@ public class ConsoleMenu {
 
         info("\n--------------------------");
         info("Revenu mensuel : " + ExpenseService.MONTHLY_INCOME.setScale(2, RoundingMode.HALF_UP));
-        info("Dépenses logement mensuelles moyennes : " + averageHousingExpenses.setScale(2, RoundingMode.HALF_UP));
         info("Épargne mensuelle disponible : " + availableMonthlySavings.setScale(2, RoundingMode.HALF_UP));
         info("Mensualité maximale pour le prêt : " + maximumMonthlyPayment.setScale(2, RoundingMode.HALF_UP));
         info("--------------------------");

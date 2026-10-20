@@ -56,26 +56,33 @@ public class ExpenseService {
     }
 
     public BigDecimal calculateAverageMonthlyExpenses() {
-        TreeMap<String, BigDecimal> expensesByMonth = groupByMonth();
-
-        if (expensesByMonth.isEmpty()) return BigDecimal.ZERO;
-
-        BigDecimal totalExpenses = calculateTotalExpenses();
-
-        return totalExpenses.divide(BigDecimal.valueOf(expensesByMonth.size()), 2, RoundingMode.HALF_UP);
-    }
-
-    public BigDecimal calculateAvailableMonthlySavings() {
-        return MONTHLY_INCOME.subtract(calculateAverageMonthlyExpenses());
-    }
-
-    public BigDecimal calculateAverageMonthlyExpensesForCategory(String category) {
         int monthCount = groupByMonth().size();
 
         if (monthCount == 0) return BigDecimal.ZERO;
 
-        BigDecimal categoryTotal = groupByCategory().getOrDefault(category, BigDecimal.ZERO);
-       
-        return categoryTotal.divide(BigDecimal.valueOf(monthCount), 2, RoundingMode.HALF_UP);
+        BigDecimal totalExpenses = calculateTotalExpenses();
+
+        return totalExpenses.divide(BigDecimal.valueOf(monthCount), 2, RoundingMode.HALF_UP);
     }
+
+    public BigDecimal calculateAvailableMonthlySavings() {
+        return calculateAvailableMonthlySavings("");
+    }
+
+    public BigDecimal calculateAvailableMonthlySavings(String execludedCategory) {
+        int monthCount = groupByMonth().size();
+
+        if (monthCount == 0) return MONTHLY_INCOME;
+
+        BigDecimal totalExpenses = calculateTotalExpenses();
+
+        if (excludedCategory != null && !excludedCategory.isBlank()) {
+            totalExpenses = totalExpenses.subtract(groupByCategory().getOrDefault(excludedCategory, BigDecimal.ZERO));
+        }
+
+        BigDecimal averageExpenses = totalExpenses.divide(BigDecimal.valueOf(monthCount), 2, RoundingMode.HALF_UP);
+
+        return MONTHLY_INCOME.subtract(averageExpenses);
+    }
+
 }
