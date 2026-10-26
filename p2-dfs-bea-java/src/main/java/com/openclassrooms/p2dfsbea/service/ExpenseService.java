@@ -69,7 +69,7 @@ public class ExpenseService {
         return calculateAvailableMonthlySavings("");
     }
 
-    public BigDecimal calculateAvailableMonthlySavings(String execludedCategory) {
+    public BigDecimal calculateAvailableMonthlySavings(String excludedCategory) {
         int monthCount = groupByMonth().size();
 
         if (monthCount == 0) return MONTHLY_INCOME;
