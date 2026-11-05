@@ -11,6 +11,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 class ExpenseTest {
 
     @Test
+    // Vérifie qu'une ligne CSV valide produit la dépense attendue.
     void parsesValidCsvLine() {
         Expense expense = Expense.fromCsvLine("05/03/2025,Food,Lunch,12.50");
 
@@ -21,6 +22,7 @@ class ExpenseTest {
     }
 
     @Test
+    // Vérifie que les lignes vides ou incorrectes sont ignorées.
     void ignoresBlankMalformedAndInvalidCsvLines() {
         assertNull(Expense.fromCsvLine(null));
         assertNull(Expense.fromCsvLine("  "));
@@ -30,6 +32,7 @@ class ExpenseTest {
     }
 
     @Test
+    // Vérifie le format CSV, la date et l'arrondi du montant à deux décimales.
     void writesCsvLineWithExpectedDateAndTwoDecimalAmount() {
         Expense expense = new Expense(LocalDate.of(2025, 3, 5), "Food", "Lunch", new BigDecimal("12.345"));
 

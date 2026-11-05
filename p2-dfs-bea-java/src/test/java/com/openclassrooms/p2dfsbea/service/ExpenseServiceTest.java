@@ -22,12 +22,14 @@ class ExpenseServiceTest {
     private ExpenseService service;
 
     @BeforeEach
+    // Prépare un dépôt simulé et un nouveau service avant chaque test.
     void setUp() {
         repository = mock(ExpenseRepository.class);
         service = new ExpenseService(repository);
     }
 
     @Test
+    // Vérifie le total et les regroupements par catégorie et par mois.
     void calculatesTotalAndGroupsExpensesByCategoryAndMonth() {
         List<Expense> expenses = List.of(
             expense("2025-03-05", "Food", "20.00"),
@@ -50,6 +52,7 @@ class ExpenseServiceTest {
     }
 
     @Test
+    // Vérifie que la moyenne mensuelle est arrondie à deux décimales.
     void calculatesAverageMonthlyExpensesRoundedToTwoDecimals() {
         load(List.of(
             expense("2025-03-05", "Food", "3.00"),
@@ -60,6 +63,7 @@ class ExpenseServiceTest {
     }
 
     @Test
+    // Vérifie les résultats du service quand aucune dépense n'est chargée.
     void returnsZeroAverageAndFullIncomeSavingsWhenThereAreNoExpenses() {
         load(List.of());
 
@@ -68,6 +72,7 @@ class ExpenseServiceTest {
     }
 
     @Test
+    // Vérifie l'épargne disponible avec et sans exclusion des dépenses de logement.
     void calculatesAvailableSavingsAndCanExcludeHousingExpenses() {
         load(List.of(
             expense("2025-03-05", "Food", "100.00"),
@@ -78,6 +83,7 @@ class ExpenseServiceTest {
     }
 
     @Test
+    // Vérifie que le service charge et renvoie les dépenses fournies par le dépôt.
     void loadsAndReturnsRepositoryExpenses() {
         List<Expense> expenses = List.of(expense("2025-03-05", "Food", "12.50"));
         when(repository.readAll()).thenReturn(expenses);
@@ -86,6 +92,7 @@ class ExpenseServiceTest {
     }
 
     @Test
+    // Vérifie que le service transmet la dépense au dépôt pour l'enregistrer.
     void delegatesExpenseAppendToRepository() throws IOException {
         Expense expense = expense("2025-03-05", "Food", "12.50");
 
@@ -94,11 +101,13 @@ class ExpenseServiceTest {
         verify(repository).append(expense);
     }
 
+    // Configure le dépôt simulé avec une liste puis la charge dans le service.
     private void load(List<Expense> expenses) {
         when(repository.readAll()).thenReturn(expenses);
         service.loadAllExpenses();
     }
 
+    // Crée une dépense de test à partir d'une date et d'un montant.
     private Expense expense(String date, String category, String amount) {
         return new Expense(LocalDate.parse(date), category, "Test expense", new BigDecimal(amount));
     }

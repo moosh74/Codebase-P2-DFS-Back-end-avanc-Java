@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 
 public class CarPurchaseSimulatorService {
+    // Calcule le nombre de mois d'épargne nécessaires pour réunir le prix de la voiture.
     public int calculateMonthsToSave(BigDecimal carPrice, BigDecimal monthlySavings) {
         if (carPrice.signum() <= 0) {
             throw new IllegalArgumentException("Le prix de la voiture doit être supérieur à zéro.");
