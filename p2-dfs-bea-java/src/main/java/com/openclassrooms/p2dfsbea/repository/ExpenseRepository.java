@@ -4,17 +4,25 @@ import com.openclassrooms.p2dfsbea.model.Expense;
 
 import java.io.BufferedWriter;
 import java.io.IOException;
-import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Stream;
 
 public class ExpenseRepository {
-    private final Path emmaPath = Path.of("src/main/resources/emma_expenses.csv");
+    private final Path emmaPath;
+
+    public ExpenseRepository() {
+        this(Path.of("src/main/resources/emma_expenses.csv"));
+    }
+
+    public ExpenseRepository(Path emmaPath) {
+        this.emmaPath = Objects.requireNonNull(emmaPath, "emmaPath must not be null");
+    }
 
     public List<Expense> readAll() {
         List<Expense> result = new ArrayList<>();

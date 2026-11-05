@@ -134,7 +134,37 @@ public class ConsoleMenu {
         info("Revenu mensuel : " + ExpenseService.MONTHLY_INCOME.setScale(2, RoundingMode.HALF_UP));
         info("Épargne mensuelle disponible : " + availableMonthlySavings.setScale(2, RoundingMode.HALF_UP));
         info("Mensualité maximale pour le prêt : " + maximumMonthlyPayment.setScale(2, RoundingMode.HALF_UP));
-        info("--------------------------");
+        info("--------------------------\n");
+
+        try {
+            System.out.print("Mensualité souhaitée (max: " + maximumMonthlyPayment.setScale(2, RoundingMode.HALF_UP) + ") : ");
+            BigDecimal monthlyPayment = new BigDecimal(scanner.nextLine().trim().replace(',', '.'));
+
+            if (monthlyPayment.compareTo(maximumMonthlyPayment) > 0) {
+                error("La mensualité souhaitée ne peut pas dépasser la mensualité maximale.");
+                return;
+            }
+
+            System.out.print("Taux annuel (en %) : ");
+            BigDecimal annualRatePercent = new BigDecimal(scanner.nextLine().trim().replace(',', '.'));
+
+            System.out.print("Durée du prêt en années : ");
+            int durationYears = Integer.parseInt(scanner.nextLine().trim());
+
+            BigDecimal borrowingCapacity = mortgageSimulatorService.calculateBorrowingCapacity(monthlyPayment, annualRatePercent, durationYears);
+
+            success("\nMensualité choisie : " + monthlyPayment.setScale(2, RoundingMode.HALF_UP));
+            success("Taux annuel : " + annualRatePercent.stripTrailingZeros().toPlainString() + "%");
+            success("Durée : " + durationYears + " ans");
+            success("Capacité d'emprunt estimée : " + borrowingCapacity.setScale(2, RoundingMode.HALF_UP));
+            success("--------------------------");
+        } catch (NumberFormatException ex) {
+            error("Saisie invalide. Vérifiez la mensualité, le taux et la durée.");
+        } catch (IllegalArgumentException ex) {
+            error(ex.getMessage());
+        } catch (ArithmeticException ex) {
+            error("La durée saisie dépasse la capacité de calcul de la simulation.");
+        }
     }
 
     private void addExpense() {
