@@ -4,10 +4,12 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.time.format.ResolverStyle;
 import java.util.Objects;
 
 public class Expense {
-    public static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+    public static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("dd/MM/uuuu")
+        .withResolverStyle(ResolverStyle.STRICT);
     public static final DateTimeFormatter FORMATTER_MONTH = DateTimeFormatter.ofPattern("MMMM yyyy");
 
     private LocalDate date;
@@ -63,7 +65,7 @@ public class Expense {
 
     @Override
     public String toString() {
-        return date.format(FORMATTER) + "," + category + "," + description + "," + amount.setScale(2, RoundingMode.HALF_UP).toString();
+        return getDate().format(FORMATTER) + "," + category + "," + description + "," + amount.setScale(2, RoundingMode.HALF_UP).toString();
     }
 
     public static Expense fromCsvLine(String line) {
