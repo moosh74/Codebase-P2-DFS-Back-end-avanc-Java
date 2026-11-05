@@ -8,12 +8,14 @@ public class MortgageLoanSimulatorService {
     private static final BigDecimal TAUX_ENDETTEMENT = new BigDecimal("0.35");
     private static final MathContext PRECISION = new MathContext(20);
 
+    // Calcule la mensualité maximale possible selon le revenu, le plafond d'endettement et l'épargne disponible.
     public BigDecimal calculateMaximumMonthlyPayment(BigDecimal monthlyIncome, BigDecimal availableMonthlySavings) {
         BigDecimal debtRatioLimit = monthlyIncome.multiply(TAUX_ENDETTEMENT);
 
         return debtRatioLimit.min(availableMonthlySavings).max(BigDecimal.ZERO);
     }
 
+    // Estime le capital empruntable selon la mensualité, le taux annuel en pourcentage et la durée en années.
     public BigDecimal calculateBorrowingCapacity(BigDecimal monthlyPayment, BigDecimal annualRatePercent, int durationYears) {
         if (monthlyPayment == null || monthlyPayment.signum() <= 0) {
             throw new IllegalArgumentException("La mensualité doit être supérieure à zéro.");

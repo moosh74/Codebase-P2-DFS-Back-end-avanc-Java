@@ -32,12 +32,14 @@ public class ExpenseService {
         repository.append(expense);
     }
 
+    // Calcule la somme de toutes les dépenses chargées.
     public BigDecimal calculateTotalExpenses() {
         return expenses.stream()
             .map(Expense::getAmount)
             .reduce(BigDecimal.ZERO, BigDecimal::add);
     }
 
+    // Calcule le total des dépenses pour chaque catégorie.
     public TreeMap<String, BigDecimal> groupByCategory() {
         return expenses.stream()
             .collect(Collectors.groupingBy(
@@ -46,6 +48,7 @@ public class ExpenseService {
                 Collectors.reducing(BigDecimal.ZERO, Expense::getAmount, BigDecimal::add)));
     }
 
+    // Calcule le total des dépenses pour chaque mois.
     public TreeMap<String, BigDecimal> groupByMonth() {
         Comparator<String> sortOrder = Comparator.comparing(
             (String label) -> YearMonth.parse(label, Expense.FORMATTER_MONTH));
@@ -57,6 +60,7 @@ public class ExpenseService {
                 Collectors.reducing(BigDecimal.ZERO, Expense::getAmount, BigDecimal::add)));
     }
 
+    // Calcule la dépense moyenne par mois distinct présent dans l'historique.
     public BigDecimal calculateAverageMonthlyExpenses() {
         int monthCount = groupByMonth().size();
 
@@ -67,10 +71,12 @@ public class ExpenseService {
         return totalExpenses.divide(BigDecimal.valueOf(monthCount), 2, RoundingMode.HALF_UP);
     }
 
+    // Calcule l'épargne mensuelle disponible sans exclure de catégorie.
     public BigDecimal calculateAvailableMonthlySavings() {
         return calculateAvailableMonthlySavings("");
     }
 
+    // Calcule l'épargne mensuelle disponible en ignorant la catégorie indiquée.
     public BigDecimal calculateAvailableMonthlySavings(String excludedCategory) {
         int monthCount = groupByMonth().size();
 

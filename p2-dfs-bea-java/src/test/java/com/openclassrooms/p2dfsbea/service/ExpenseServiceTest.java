@@ -1,0 +1,114 @@
+package com.openclassrooms.p2dfsbea.service;
+
+import com.openclassrooms.p2dfsbea.model.Expense;
+import com.openclassrooms.p2dfsbea.repository.ExpenseRepository;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.util.List;
+import java.util.TreeMap;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+class ExpenseServiceTest {
+    private ExpenseRepository repository;
+    private ExpenseService service;
+
+    @BeforeEach
+    // Prépare un dépôt simulé et un nouveau service avant chaque test.
+    void setUp() {
+        repository = mock(ExpenseRepository.class);
+        service = new ExpenseService(repository);
+    }
+
+    @Test
+    // Vérifie le total et les regroupements par catégorie et par mois.
+    void calculatesTotalAndGroupsExpensesByCategoryAndMonth() {
+        List<Expense> expenses = List.of(
+            expense("2025-03-05", "Food", "20.00"),
+            expense("2025-03-08", "food", "10.00"),
+            expense("2025-04-02", "Transport", "15.00"));
+            
+        load(expenses);
+
+        assertEquals(new BigDecimal("45.00"), service.calculateTotalExpenses());
+
+        TreeMap<String, BigDecimal> byCategory = service.groupByCategory();
+        assertEquals(2, byCategory.size());
+        assertEquals(new BigDecimal("30.00"), byCategory.get("FOOD"));
+        assertEquals(new BigDecimal("15.00"), byCategory.get("transport"));
+
+        TreeMap<String, BigDecimal> byMonth = service.groupByMonth();
+        assertEquals(2, byMonth.size());
+        assertEquals(new BigDecimal("30.00"), byMonth.get(expenses.get(0).getMonthFullName()));
+        assertEquals(new BigDecimal("15.00"), byMonth.get(expenses.get(2).getMonthFullName()));
+    }
+
+    @Test
+    // Vérifie que la moyenne mensuelle est arrondie à deux décimales.
+    void calculatesAverageMonthlyExpensesRoundedToTwoDecimals() {
+        load(List.of(
+            expense("2025-03-05", "Food", "3.00"),
+            expense("2025-04-02", "Food", "3.00"),
+            expense("2025-05-03", "Transport", "4.00")));
+
+        assertEquals(new BigDecimal("3.33"), service.calculateAverageMonthlyExpenses());
+    }
+
+    @Test
+    // Vérifie les résultats du service quand aucune dépense n'est chargée.
+    void returnsZeroAverageAndFullIncomeSavingsWhenThereAreNoExpenses() {
+        load(List.of());
+
+        assertEquals(BigDecimal.ZERO, service.calculateAverageMonthlyExpenses());
+        assertEquals(ExpenseService.MONTHLY_INCOME, service.calculateAvailableMonthlySavings());
+    }
+
+    @Test
+    // Vérifie l'épargne disponible avec et sans exclusion des dépenses de logement.
+    void calculatesAvailableSavingsAndCanExcludeHousingExpenses() {
+        load(List.of(
+            expense("2025-03-05", "Food", "100.00"),
+            expense("2025-03-08", "Housing", "200.00")));
+
+        assertEquals(new BigDecimal("1700.00"), service.calculateAvailableMonthlySavings());
+        assertEquals(new BigDecimal("1900.00"), service.calculateAvailableMonthlySavings("housing"));
+    }
+
+    @Test
+    // Vérifie que le service charge et renvoie les dépenses fournies par le dépôt.
+    void loadsAndReturnsRepositoryExpenses() {
+        List<Expense> expenses = List.of(expense("2025-03-05", "Food", "12.50"));
+        when(repository.readAll()).thenReturn(expenses);
+
+        assertSame(expenses, service.loadAllExpenses());
+    }
+
+    @Test
+    // Vérifie que le service transmet la dépense au dépôt pour l'enregistrer.
+    void delegatesExpenseAppendToRepository() throws IOException {
+        Expense expense = expense("2025-03-05", "Food", "12.50");
+
+        service.addExpense(expense);
+
+        verify(repository).append(expense);
+    }
+
+    // Configure le dépôt simulé avec une liste puis la charge dans le service.
+    private void load(List<Expense> expenses) {
+        when(repository.readAll()).thenReturn(expenses);
+        service.loadAllExpenses();
+    }
+
+    // Crée une dépense de test à partir d'une date et d'un montant.
+    private Expense expense(String date, String category, String amount) {
+        return new Expense(LocalDate.parse(date), category, "Test expense", new BigDecimal(amount));
+    }
+}
